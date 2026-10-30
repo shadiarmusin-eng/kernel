@@ -20,6 +20,7 @@ def apply_extra():
                nf4.patch_bnb_dequant):
         try:
             fn()
+            print(f"[solution] OK: {fn.__name__}")
         except Exception as e:  # noqa: BLE001
-            warnings.warn(f"{fn.__name__} skipped: {e}")
+            print(f"[solution] SKIPPED {fn.__name__}: {e}")
     _DONE = True
