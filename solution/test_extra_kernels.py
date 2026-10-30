@@ -49,4 +49,18 @@ def test_ce_and_entropy(ldt):
     torch.testing.assert_close(logits.grad.float(), ref.grad.float(), rtol=1e-2, atol=1e-5)
     p = torch.log_softmax(logits.detach().float(), -1)
     ent_ref = -(p.exp() * p).sum(-1)
-    torch.testing.assert_close(fused_entropy(logits.detach()), ent_ref, rtol=1e-4, atol=1e-4)   
+    torch.testing.assert_close(fused_entropy(logits.detach()), ent_ref, rtol=1e-4, atol=1e-4)
+
+
+@cuda
+@pytest.mark.parametrize("nested", [True, False])
+def test_nf4_dequant(nested):
+    import bitsandbytes.functional as BF
+    from solution.nf4 import dequantize_nf4
+    torch.manual_seed(0)
+    W = torch.randn(1536, 1536, device="cuda", dtype=torch.float16)
+    q, st = BF.quantize_4bit(W, blocksize=64, compress_statistics=nested, quant_type="nf4")
+    ref = BF.dequantize_4bit(q, st)
+    out = dequantize_nf4(q, st)
+    assert out.shape == ref.shape and out.dtype == ref.dtype
+    torch.testing.assert_close(out, ref, rtol=1e-3, atol=1e-3)
