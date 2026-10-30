@@ -17,4 +17,8 @@ from .swiglu import patch_qwen2_mlp
 
 
 def apply():
-    patch_qwen2_mlp()  # the example: works out of the box, does not count as your own kernel
+    patch_qwen2_mlp()  # the example: works out of the box, does not count as your own kerne
+
+
+    from ._extra_patches import apply_extra
+    apply_extra()
