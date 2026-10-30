@@ -166,7 +166,7 @@ def patch_entropy():
         return
 
     def entropy_from_logits(logits, *args, **kwargs):
-        if logits.is_cuda and not logits.requires_grad and logits.dim() >= 2:
+        if logits.is_cuda and logits.dim() >= 2 and (not torch.is_grad_enabled() or not logits.requires_grad):
             try:
                 return fused_entropy(logits)
             except Exception:  # never break training because of the speed-up
